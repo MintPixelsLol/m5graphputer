@@ -5,19 +5,51 @@ status - just started
 */
 
 
-
-
 #include <M5Cardputer.h>
 #include "Org_01.h"
 static const uint16_t PROGMEM image_graph_1_pixels[] = {0x18C6,0x18C6,0xDFFF,0xDFFF,0xDFFF,0xDFFF,0xDBDE,0xDBDE,0xDBDE,0xDBDE,0xDBDE,0x18C6,0x18C6,0x18C6,0xDFFF,0x5F04,0x5F04,0x5F04,0x5F04,0x7A6D,0x5F04,0x5F04,0x5F04,0x5F04,0xDBDE,0x18C6,0xDFFF,0x5F04,0x5F04,0xFFFF,0x5F04,0x5F04,0x7A6D,0x5F04,0x5F04,0x5F04,0x9F03,0x9F03,0x0C63,0xDFFF,0x5F04,0xFFFF,0x5F04,0xFFFF,0x5F04,0x7A6D,0x5F04,0x5F04,0x5F04,0x9F03,0x9F03,0x0C63,0xDFFF,0xFFFF,0x5F04,0x5F04,0x5F04,0xFFFF,0x7A6D,0x5F04,0x5F04,0x9F03,0x9F03,0x9F03,0x0C63,0xDFFF,0xFFFF,0x5F04,0x5F04,0x5F04,0xFFFF,0x7A6D,0x5F04,0x9F03,0x9F03,0x9F03,0x9F03,0x0C63,0xDFFF,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0xFFFF,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0xE739,0xDBDE,0x5F04,0x5F04,0x5F04,0x5F04,0x5F04,0x7A6D,0xFFFF,0x9F03,0x9F03,0x9F03,0xFFFF,0xE739,0xDBDE,0x5F04,0x5F04,0x5F04,0x5F04,0x9F03,0x7A6D,0xFFFF,0x9F03,0x9F03,0x3D02,0xFFFF,0xE739,0xDBDE,0x5F04,0x5F04,0x5F04,0x9F03,0x9F03,0x7A6D,0x9F03,0xFFFF,0x3D02,0xFFFF,0x3D02,0xE739,0xDBDE,0x5F04,0x9F03,0x9F03,0x9F03,0x9F03,0x7A6D,0x9F03,0x3D02,0xFFFF,0x3D02,0x3D02,0xE739,0x18C6,0xDBDE,0x9F03,0x9F03,0x9F03,0x9F03,0x7A6D,0x3D02,0x3D02,0x3D02,0x3D02,0xE739,0x18C6,0x18C6,0x18C6,0x0C63,0x0C63,0x0C63,0x0C63,0x0C63,0xE739,0xE739,0xE739,0xE739,0x18C6,0x18C6};
 
+
+M5Canvas graph(&M5Cardputer.Lcd);
+
+
+//functional variabled
+int mode = 0; //main menu or smth else
+
+//assistive variables
+int linesX = -120;
+int drawX = 0;
+int posX = 0;
+int linesY = -69;
+int drawY = 0;
+int posY = 0;
+int primeLineTempPos = 0;
 void setup() {
   auto cfg = M5.config();
   M5Cardputer.begin(cfg);
+
+
   // [BEGIN lopaka generated]
-  M5Cardputer.Display.fillRect(0, 0, 240, 135, 0xFFFF);
-  M5Cardputer.Display.drawLine(0, 66, 240, 66, 0x39E7);
-  M5Cardputer.Display.drawLine(119, 0, 119, 135, 0x4208);
+  M5Cardputer.Display.setBrightness(10);
+  M5Cardputer.Display.fillScreen(0xFFFF);
+
+  //ruler lines
+  M5Cardputer.Display.drawLine(0, 66, 240, 66, 0x39E7); // y will get some love later
+
+
+  for (int ix = linesX; ix<240+linesX; ix++) {
+    drawX = ix/2;
+    posX=ix-linesX;
+    if (ix==0) {
+      primeLineTempPos = posX;
+      M5Cardputer.Display.drawLine(posX, 0, posX, 135, 0x4208);
+    } else if (ix%20==0) {
+      M5Cardputer.Display.drawLine(posX, 0, posX, 135, 0xD69A);
+    }
+  }
+  M5Cardputer.Display.drawLine(primeLineTempPos, 0, primeLineTempPos, 135, 0x4208);
+
+
   M5Cardputer.Display.fillRect(0, 0, 240, 15, 0xC618);
   M5Cardputer.Display.drawLine(0, 15, 239, 15, 0x8410);
   M5Cardputer.Display.fillRoundRect(188, 2, 7, 11, 1, 0x7E0);
@@ -29,28 +61,39 @@ void setup() {
   M5Cardputer.Display.pushImage(1, 1, 13, 13, image_graph_1_pixels);
   M5Cardputer.Display.fillRect(0, 120, 240, 15, 0xBDF7);
   M5Cardputer.Display.drawLine(0, 119, 238, 119, 0x8410);
+
+  //ruler
   M5Cardputer.Display.setTextSize(1);
-  M5Cardputer.Display.setFreeFont();
-  M5Cardputer.Display.drawString("0", 119, 128);
-  M5Cardputer.Display.drawLine(119, 120, 119, 126, 0x0);
-  M5Cardputer.Display.drawLine(121, 125, 121, 122, 0x0);
-  M5Cardputer.Display.drawLine(123, 125, 123, 122, 0x0);
-  M5Cardputer.Display.drawLine(125, 125, 125, 122, 0x0);
-  M5Cardputer.Display.drawLine(127, 125, 127, 122, 0x0);
-  M5Cardputer.Display.drawLine(129, 125, 129, 121, 0x0);
-  M5Cardputer.Display.drawLine(131, 125, 131, 122, 0x0);
-  M5Cardputer.Display.drawLine(133, 125, 133, 122, 0x0);
-  M5Cardputer.Display.drawLine(135, 125, 135, 122, 0x0);
-  M5Cardputer.Display.drawLine(137, 125, 137, 122, 0x0);
-  M5Cardputer.Display.drawLine(139, 120, 139, 126, 0x0);
-  M5Cardputer.Display.drawString("10", 139, 128);
+  M5Cardputer.Display.setFreeFont(&Org_01);
+  
+  for (int ix = linesX; ix<240+linesX; ix++) {
+    drawX = ix/2;
+    posX=ix-linesX;
+    if (ix==0||(ix%20==0)) {
+      M5Cardputer.Display.drawNumber(drawX, posX, 128);
+      M5Cardputer.Display.drawLine(posX, 120, posX, 126, 0x0);
+    } else if (ix%10==0) {
+      M5Cardputer.Display.drawLine(posX, 125, posX, 121, 0x0);
+    } else if (ix%2==0) {
+      M5Cardputer.Display.drawLine(posX, 125, posX, 122, 0x0);
+    }
+  }
+
+
   M5Cardputer.Display.setFreeFont(&FreeMono9pt7b);
-  M5Cardputer.Display.drawString("2 graphs", 17, 0);
+  M5Cardputer.Display.drawString("0 graphs", 17, 0);
   // [END lopaka generated]
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
 }
+
+
+
+
+
+
+
+
