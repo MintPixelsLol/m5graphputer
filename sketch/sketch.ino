@@ -4,9 +4,9 @@ M5GraphPuter
 status - just started
 */
 
-#include <vector>
 #include <M5Cardputer.h>
 #include "Org_01.h"
+#include "Petme8x8.h"
 #include "tinyexpr.h"
 static const uint16_t PROGMEM image_graph_1_pixels[] = { 0x18C6, 0x18C6, 0xDFFF, 0xDFFF, 0xDFFF, 0xDFFF, 0xDBDE, 0xDBDE, 0xDBDE, 0xDBDE, 0xDBDE, 0x18C6, 0x18C6, 0x18C6, 0xDFFF, 0x5F04, 0x5F04, 0x5F04, 0x5F04, 0x7A6D, 0x5F04, 0x5F04, 0x5F04, 0x5F04, 0xDBDE, 0x18C6, 0xDFFF, 0x5F04, 0x5F04, 0xFFFF, 0x5F04, 0x5F04, 0x7A6D, 0x5F04, 0x5F04, 0x5F04, 0x9F03, 0x9F03, 0x0C63, 0xDFFF, 0x5F04, 0xFFFF, 0x5F04, 0xFFFF, 0x5F04, 0x7A6D, 0x5F04, 0x5F04, 0x5F04, 0x9F03, 0x9F03, 0x0C63, 0xDFFF, 0xFFFF, 0x5F04, 0x5F04, 0x5F04, 0xFFFF, 0x7A6D, 0x5F04, 0x5F04, 0x9F03, 0x9F03, 0x9F03, 0x0C63, 0xDFFF, 0xFFFF, 0x5F04, 0x5F04, 0x5F04, 0xFFFF, 0x7A6D, 0x5F04, 0x9F03, 0x9F03, 0x9F03, 0x9F03, 0x0C63, 0xDFFF, 0x7A6D, 0x7A6D, 0x7A6D, 0x7A6D, 0x7A6D, 0xFFFF, 0x7A6D, 0x7A6D, 0x7A6D, 0x7A6D, 0x7A6D, 0xE739, 0xDBDE, 0x5F04, 0x5F04, 0x5F04, 0x5F04, 0x5F04, 0x7A6D, 0xFFFF, 0x9F03, 0x9F03, 0x9F03, 0xFFFF, 0xE739, 0xDBDE, 0x5F04, 0x5F04, 0x5F04, 0x5F04, 0x9F03, 0x7A6D, 0xFFFF, 0x9F03, 0x9F03, 0x3D02, 0xFFFF, 0xE739, 0xDBDE, 0x5F04, 0x5F04, 0x5F04, 0x9F03, 0x9F03, 0x7A6D, 0x9F03, 0xFFFF, 0x3D02, 0xFFFF, 0x3D02, 0xE739, 0xDBDE, 0x5F04, 0x9F03, 0x9F03, 0x9F03, 0x9F03, 0x7A6D, 0x9F03, 0x3D02, 0xFFFF, 0x3D02, 0x3D02, 0xE739, 0x18C6, 0xDBDE, 0x9F03, 0x9F03, 0x9F03, 0x9F03, 0x7A6D, 0x3D02, 0x3D02, 0x3D02, 0x3D02, 0xE739, 0x18C6, 0x18C6, 0x18C6, 0x0C63, 0x0C63, 0x0C63, 0x0C63, 0x0C63, 0xE739, 0xE739, 0xE739, 0xE739, 0x18C6, 0x18C6 };
 
@@ -23,7 +23,7 @@ double graphA[240];
 
 int graphAsize = 10;
 char* graphAtoeval = new char[graphAsize];
-String graphAstr = "20*sin(x/4)";
+String graphAstr = "sin(x/10)*20-cos(x)"; //20*sin(x/4)
 
 //assistive variables
 int linesX = -120;
@@ -35,6 +35,7 @@ int posY = 0;
 int primeLineTempPosX = 0;
 int primeLineTempPosY = 0;
 
+
 void setup() {
   Serial.begin(115200);
   auto cfg = M5.config();
@@ -42,6 +43,8 @@ void setup() {
   M5Cardputer.update();
   strcpy(graphAtoeval, graphAstr.c_str());
   Canvas.createSprite(240, 135);
+
+  intro();
 }
 
 int lastX = 1;
@@ -56,7 +59,7 @@ void loop() {
         const int size = 240;
         double resultArray[size];
         bool isError;
-        int err = evalToArray(graphA, size, 0.5, linesX, "20*sin(x/4)", &isError);
+        int err = evalToArray(graphA, size, 0.5, linesX, graphAtoeval, &isError);
       }
       if (M5Cardputer.Keyboard.isKeyPressed('/')) {linesX++;}
       if (M5Cardputer.Keyboard.isKeyPressed(',')) {linesX--;}
@@ -99,7 +102,9 @@ void drawGraph() {
       Canvas.drawLine(0, posY, 240, posY, 0x4208);
       primeLineTempPosY = posY;
     } else if (iy % 20 == 0) {
-      Canvas.drawLine(0, posY, 240, posY, 0xD69A);
+      Canvas.drawLine(0, posY, 240, posY, 0xC5F7);
+    } else if (iy % 10 == 0) {
+      Canvas.drawLine(0, posY, 240, posY, 0xDEFB);
     }
   }
   for (int ix = linesX; ix < 240 + linesX; ix++) {
@@ -109,7 +114,9 @@ void drawGraph() {
       primeLineTempPosX = posX;
       Canvas.drawLine(posX, 0, posX, 135, 0x4208);
     } else if (ix % 20 == 0) {
-      Canvas.drawLine(posX, 0, posX, 135, 0xD69A);
+      Canvas.drawLine(posX, 0, posX, 135, 0xC5F7);
+    } else if (ix % 10 == 0) {
+      Canvas.drawLine(posX, 0, posX, 135, 0xDEFB);
     }
   }
   Canvas.drawLine(primeLineTempPosX, 0, primeLineTempPosX, 135, 0x4208);
@@ -189,4 +196,72 @@ void drawGraph() {
     }
   }
   Canvas.pushSprite(0, 0);
+}
+
+void intro() {
+  int linesIntro = 0;
+  bool introLoop = true;
+  uint16_t introColor = 0xFAA4;
+  while (introLoop) {
+    M5Cardputer.update();
+    Canvas.fillSprite(0xFFFF);
+    const int size = 240;
+    double resultArray[size];
+    bool isError;
+    int err = evalToArray(graphA, size, 0.5, linesIntro, graphAtoeval, &isError);
+    for (int iy = linesY; iy < 135 + linesY; iy++) {
+      drawY = -(iy / 2);
+      posY = iy - linesY;
+      if (iy == 0) {
+        Canvas.drawLine(0, posY, 240, posY, 0x4208);
+        primeLineTempPosY = posY;
+      } else if (iy % 20 == 0) {
+        Canvas.drawLine(0, posY, 240, posY, 0xC5F7);
+      } else if (iy % 10 == 0) {
+        Canvas.drawLine(0, posY, 240, posY, 0xDEFB);
+      }
+    }
+    for (int ix = linesIntro; ix < 240 + linesIntro; ix++) {
+      drawX = ix / 2;
+      posX = ix - linesIntro;
+      if (ix % 20 == 0) {
+        Canvas.drawLine(posX, 0, posX, 135, 0xC5F7);
+      } else if (ix % 10 == 0) {
+        Canvas.drawLine(posX, 0, posX, 135, 0xDEFB);
+      }
+    }
+    Canvas.drawLine(0, primeLineTempPosY, 240, primeLineTempPosY, 0x4208);
+    for (int i = 0; i<1; i++) {
+      for (int ix = linesIntro; ix < 240 + linesIntro; ix++) {
+        drawX = ix / 2;
+        posX = ix - linesIntro;
+        Canvas.drawLine(posX, -graphA[posX]*2-linesY, posX-1, -graphA[posX-1]*2-linesY, introColor);
+      }
+    }
+
+    Canvas.fillRoundRect(31, 15, 178, 41, 4, 0xDEFB);
+    Canvas.drawRoundRect(77, 57, 89, 17, 2, introColor);
+    Canvas.fillRoundRect(79, 57, 85, 15, 1, introColor);
+    Canvas.drawRoundRect(29, 13, 182, 45, 5, 0x5AEC);
+    Canvas.setTextColor(0x0);
+    Canvas.setTextSize(1);
+    Canvas.setFreeFont(&FreeMonoBold12pt7b);
+    Canvas.drawString("M5Graphputer", 37, 17);
+    Canvas.setTextColor(0x39C8);
+    Canvas.setFreeFont(&FreeMono9pt7b);
+    Canvas.drawString("by MintPixels", 61, 39);
+    Canvas.pushImage(37, 39, 13, 13, image_graph_1_pixels);
+    Canvas.drawLine(56, 40, 56, 51, 0x9CD2);
+    Canvas.setTextColor(0xFFFF);
+    Canvas.setFreeFont();
+    Canvas.drawString("dev-release", 89, 61);
+    Canvas.fillRoundRect(31, 110, 178, 13, 4, 0xDEFB);
+    Canvas.drawRoundRect(29, 108, 182, 17, 4, 0x5AEC);
+    Canvas.setTextColor(0x0);
+    Canvas.setFreeFont(&Petme8x8);
+    Canvas.drawString("Press G0 to continue.", 36, 113);
+    Canvas.pushSprite(0, 0);
+    linesIntro++;
+    introLoop = !M5Cardputer.BtnA.wasPressed();
+  }
 }
