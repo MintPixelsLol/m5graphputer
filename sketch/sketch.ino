@@ -10,7 +10,7 @@ status - just started
 static const uint16_t PROGMEM image_graph_1_pixels[] = {0x18C6,0x18C6,0xDFFF,0xDFFF,0xDFFF,0xDFFF,0xDBDE,0xDBDE,0xDBDE,0xDBDE,0xDBDE,0x18C6,0x18C6,0x18C6,0xDFFF,0x5F04,0x5F04,0x5F04,0x5F04,0x7A6D,0x5F04,0x5F04,0x5F04,0x5F04,0xDBDE,0x18C6,0xDFFF,0x5F04,0x5F04,0xFFFF,0x5F04,0x5F04,0x7A6D,0x5F04,0x5F04,0x5F04,0x9F03,0x9F03,0x0C63,0xDFFF,0x5F04,0xFFFF,0x5F04,0xFFFF,0x5F04,0x7A6D,0x5F04,0x5F04,0x5F04,0x9F03,0x9F03,0x0C63,0xDFFF,0xFFFF,0x5F04,0x5F04,0x5F04,0xFFFF,0x7A6D,0x5F04,0x5F04,0x9F03,0x9F03,0x9F03,0x0C63,0xDFFF,0xFFFF,0x5F04,0x5F04,0x5F04,0xFFFF,0x7A6D,0x5F04,0x9F03,0x9F03,0x9F03,0x9F03,0x0C63,0xDFFF,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0xFFFF,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0x7A6D,0xE739,0xDBDE,0x5F04,0x5F04,0x5F04,0x5F04,0x5F04,0x7A6D,0xFFFF,0x9F03,0x9F03,0x9F03,0xFFFF,0xE739,0xDBDE,0x5F04,0x5F04,0x5F04,0x5F04,0x9F03,0x7A6D,0xFFFF,0x9F03,0x9F03,0x3D02,0xFFFF,0xE739,0xDBDE,0x5F04,0x5F04,0x5F04,0x9F03,0x9F03,0x7A6D,0x9F03,0xFFFF,0x3D02,0xFFFF,0x3D02,0xE739,0xDBDE,0x5F04,0x9F03,0x9F03,0x9F03,0x9F03,0x7A6D,0x9F03,0x3D02,0xFFFF,0x3D02,0x3D02,0xE739,0x18C6,0xDBDE,0x9F03,0x9F03,0x9F03,0x9F03,0x7A6D,0x3D02,0x3D02,0x3D02,0x3D02,0xE739,0x18C6,0x18C6,0x18C6,0x0C63,0x0C63,0x0C63,0x0C63,0x0C63,0xE739,0xE739,0xE739,0xE739,0x18C6,0x18C6};
 
 
-M5Canvas graph(&M5Cardputer.Lcd);
+M5Canvas Canvas(&M5Cardputer.Lcd);
 
 
 //functional variabled
@@ -20,74 +20,114 @@ int mode = 0; //main menu or smth else
 int linesX = -120;
 int drawX = 0;
 int posX = 0;
-int linesY = -69;
+int linesY = -65;
 int drawY = 0;
 int posY = 0;
-int primeLineTempPos = 0;
+int primeLineTempPosX = 0;
+int primeLineTempPosY = 0;
+bool graphDrawUI[2] = {true,true}; //X ruler, Y ruler
+bool generalDrawUI[1] = {true}; //topbar
+unsigned long timeOffset;
 void setup() {
   auto cfg = M5.config();
   M5Cardputer.begin(cfg);
-
+  M5Cardputer.update();
 
   // [BEGIN lopaka generated]
-  M5Cardputer.Display.setBrightness(10);
   M5Cardputer.Display.fillScreen(0xFFFF);
 
   //ruler lines
-  M5Cardputer.Display.drawLine(0, 66, 240, 66, 0x39E7); // y will get some love later
-
-
+  for (int iy = linesY; iy<135+linesY; iy++) {
+    drawY = iy/2;
+    posY=iy-linesY;
+    if (iy==0) {
+      M5Cardputer.Display.drawLine(0, posY, 240, posY, 0x4208);
+      primeLineTempPosY = posY;
+    } else if (iy%20==0) {
+      M5Cardputer.Display.drawLine(0, posY, 240, posY, 0xD69A);
+    }
+  }
   for (int ix = linesX; ix<240+linesX; ix++) {
     drawX = ix/2;
     posX=ix-linesX;
     if (ix==0) {
-      primeLineTempPos = posX;
+      primeLineTempPosX = posX;
       M5Cardputer.Display.drawLine(posX, 0, posX, 135, 0x4208);
     } else if (ix%20==0) {
       M5Cardputer.Display.drawLine(posX, 0, posX, 135, 0xD69A);
     }
   }
-  M5Cardputer.Display.drawLine(primeLineTempPos, 0, primeLineTempPos, 135, 0x4208);
-
-
-  M5Cardputer.Display.fillRect(0, 0, 240, 15, 0xC618);
-  M5Cardputer.Display.drawLine(0, 15, 239, 15, 0x8410);
-  M5Cardputer.Display.fillRoundRect(188, 2, 7, 11, 1, 0x7E0);
-  M5Cardputer.Display.drawRoundRect(187, 1, 9, 13, 3, 0x0);
-  M5Cardputer.Display.setTextColor(0x0);
-  M5Cardputer.Display.setTextSize(2);
-  M5Cardputer.Display.setFreeFont(&Org_01);
-  M5Cardputer.Display.drawString("100%", 199, 3);
-  M5Cardputer.Display.pushImage(1, 1, 13, 13, image_graph_1_pixels);
-  M5Cardputer.Display.fillRect(0, 120, 240, 15, 0xBDF7);
-  M5Cardputer.Display.drawLine(0, 119, 238, 119, 0x8410);
-
-  //ruler
-  M5Cardputer.Display.setTextSize(1);
-  M5Cardputer.Display.setFreeFont(&Org_01);
+  M5Cardputer.Display.drawLine(primeLineTempPosX, 0, primeLineTempPosX, 135, 0x4208);
+  M5Cardputer.Display.drawLine(0, primeLineTempPosY, 240, primeLineTempPosY, 0x4208);
   
-  for (int ix = linesX; ix<240+linesX; ix++) {
-    drawX = ix/2;
-    posX=ix-linesX;
-    if (ix==0||(ix%20==0)) {
-      M5Cardputer.Display.drawNumber(drawX, posX, 128);
-      M5Cardputer.Display.drawLine(posX, 120, posX, 126, 0x0);
-    } else if (ix%10==0) {
-      M5Cardputer.Display.drawLine(posX, 125, posX, 121, 0x0);
-    } else if (ix%2==0) {
-      M5Cardputer.Display.drawLine(posX, 125, posX, 122, 0x0);
+  M5Cardputer.Display.setTextColor(0x0);
+  //topbar
+  if (generalDrawUI[0]) {
+    M5Cardputer.Display.fillRect(0, 0, 240, 15, 0xC618);
+    M5Cardputer.Display.drawLine(0, 15, 239, 15, 0x8410);
+    M5Cardputer.Display.fillRoundRect(188, 2+11-0.11*M5Cardputer.Power.getBatteryLevel(), 7, 0.12*M5Cardputer.Power.getBatteryLevel(), 1, 0x7E0);
+    M5Cardputer.Display.drawRoundRect(187, 1, 9, 13, 3, 0x0);
+    M5Cardputer.Display.setTextSize(2);
+    M5Cardputer.Display.setFreeFont(&Org_01);
+    M5Cardputer.Display.setCursor(199, 3);
+    M5Cardputer.Display.print(M5Cardputer.Power.getBatteryLevel());
+    M5Cardputer.Display.print("%");
+    M5Cardputer.Display.pushImage(1, 1, 13, 13, image_graph_1_pixels);
+    M5Cardputer.Display.setTextSize(1);
+    M5Cardputer.Display.setFreeFont(&FreeMono9pt7b);
+    M5Cardputer.Display.setCursor(17, 0);
+    M5Cardputer.Display.print(3);
+    M5Cardputer.Display.print(" graphs");
+  }
+  //ruler x
+  if (graphDrawUI[0]) {
+    M5Cardputer.Display.fillRect(0, 120, 240, 15, 0xBDF7);
+    M5Cardputer.Display.drawLine(0, 119, 238, 119, 0x8410);
+    M5Cardputer.Display.setTextSize(1);
+    M5Cardputer.Display.setFreeFont(&Org_01);
+    
+    for (int ix = linesX; ix<240+linesX; ix++) {
+      drawX = ix/2;
+      posX=ix-linesX;
+      if (ix==0||(ix%20==0)) {
+        M5Cardputer.Display.drawNumber(drawX, posX, 128);
+        M5Cardputer.Display.drawLine(posX, 120, posX, 126, 0x0);
+      } else if (ix%10==0) {
+        M5Cardputer.Display.drawLine(posX, 125, posX, 121, 0x0);
+      } else if (ix%2==0) {
+        M5Cardputer.Display.drawLine(posX, 125, posX, 122, 0x0);
+      }
+    }
+  }
+  if (graphDrawUI[1]) {
+    M5Cardputer.Display.fillRect(0, 16*generalDrawUI[0], 18, 135-(16*generalDrawUI[0])-(16*graphDrawUI[0]), 0xD69A);
+    M5Cardputer.Display.drawLine(18, 16*generalDrawUI[0], 18, 135-17*graphDrawUI[0], 0x9CD2);
+    M5Cardputer.Display.fillRect(222, 16*generalDrawUI[0], 18, 135-(16*generalDrawUI[0])-(16*graphDrawUI[0]), 0xD69A);
+    M5Cardputer.Display.drawLine(221, 16*generalDrawUI[0], 221, 135-17*graphDrawUI[0], 0x9CD2);
+    M5Cardputer.Display.setTextSize(1);
+    M5Cardputer.Display.setFreeFont(&Org_01);
+    //ruler y
+    for (int iy = linesY+(16*generalDrawUI[0]); iy<135-(16*graphDrawUI[0])+linesY; iy++) {
+      drawY = iy/2;
+      posY=iy-linesY;
+      if (iy==0||(iy%20==0)) {
+        M5Cardputer.Display.drawNumber(drawY, 1, posY-2);
+        M5Cardputer.Display.drawLine(223, posY, 238, posY, 0x0);
+      } else if (iy%10==0) {
+        M5Cardputer.Display.drawLine(226, posY, 238, posY, 0x0);
+      } else if (iy%2==0) {
+        M5Cardputer.Display.drawLine(229, posY, 238, posY, 0x0);
+      }
     }
   }
 
-
-  M5Cardputer.Display.setFreeFont(&FreeMono9pt7b);
-  M5Cardputer.Display.drawString("0 graphs", 17, 0);
+  
   // [END lopaka generated]
-
+  Canvas.createSprite(240,135);
 }
 
 void loop() {
-
+  
 }
 
 
